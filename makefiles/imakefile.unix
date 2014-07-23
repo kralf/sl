@@ -1,0 +1,186 @@
+/*****************************************************************************
+ This is an Imakefile for GNU make, relying on special imake rules in
+ ~sschaal/prog/imake. In order to use imake and make correctly, look
+ into the README file in ~sschaal/prog/imake.
+
+ Definition of variables:
+
+ SOURCES  : All source files which are used in this Imakefile. Imake
+            will automatically generate dependencies to keep these
+            source files up-to-date with repect to included header files.
+
+ HEADERS  : All header to be kept up to data
+ OBJECTS  : All object files to be used in certain rules. See SS_Imake.rules
+ SRCDIR   : Directory where source files come from (global variable)
+ LIBDIR   : Where to install a lib
+ HEADERDIR: Where to install header files
+ BINDIR   : Where to install executables
+ INCLUDES : All include directories
+
+ Stefan Schaal, September 1996
+
+****************************************************************************/
+ 
+INCLUDES               = -I../src -I../include -I$(MY_INCLUDES)  \
+                         -I$(SARCOSDTSHOME)/include -I../math \
+                         -I/usr/local/glut/include
+
+CFLAGS                 = $(OPTIMIZE_CC_FLAGS) $(INCLUDES) -D$(MACHTYPE)
+SRCDIR                 = ../src
+LIBDIR                 = $(MY_LIBDIR)/$(MACHTYPE)
+HEADERDIR              = $(MY_INCLUDES)
+LIBRARIES              = -L$(MY_LIBDIR)/$(MACHTYPE)
+BINDIR                 = $(MY_BINDIR)/$(MACHTYPE)
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_SL_COMMON = \
+	SL_common.o \
+	SL_collect_data.o \
+	SL_vx2unix_wrappers.o \
+	SL_shared_memory.o \
+	SL_filters.o \
+	SL_unix_common.o \
+	SL_terrains.o \
+	SL_oscilloscope.o \
+	SL_man.o 
+
+SRCS_SL_COMMON = \
+	SL_common.c \
+	SL_collect_data.c \
+	SL_vx2unix_wrappers.c \
+	SL_shared_memory.c \
+	SL_filters.c \
+	SL_unix_common.c \
+	SL_terrains.c \
+	SL_oscilloscope.c \
+	SL_man.c 
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_MOTOR_SERVO = \
+	SL_controller.o \
+	SL_motor_servo.o \
+	SL_motor_servo_unix.o \
+	SL_sensor_proc.o
+
+SRCS_MOTOR_SERVO = \
+	SL_controller.c \
+	SL_motor_servo.c \
+	SL_motor_servo_unix.c \
+	SL_sensor_proc.c
+
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_TASK_SERVO = \
+	SL_tasks.o \
+	SL_task_servo.o \
+	SL_task_servo_unix.o \
+	SL_goto_task.o \
+	SL_sine_task.o \
+	SL_go_cart_task.o \
+	SL_objects.o \
+	SL_traj_task.o 
+
+SRCS_TASK_SERVO = \
+	SL_tasks.c \
+	SL_task_servo.c \
+	SL_task_servo_unix.c \
+	SL_goto_task.c \
+	SL_sine_task.c \
+	SL_go_cart_task.c \
+	SL_objects.c \
+	SL_traj_task.c
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_SIM_SERVO = \
+	SL_simulation_servo.o \
+	SL_simulation_servo_unix.o \
+	SL_userSimulation.o \
+	SL_objects.o \
+	SL_integrate.o 
+
+SRCS_SIM_SERVO = \
+	SL_simulation_servo.c \
+	SL_simulation_servo_unix.c \
+	SL_userSimulation.c \
+	SL_objects.c \
+        SL_integrate.c 
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_GL_SERVO = \
+	SL_openGL_servo.o \
+	SL_openGL_servo_unix.o \
+	SL_openGL.o \
+	SL_openGL_oscilloscope.o \
+	SL_objects.o \
+	SL_userGraphics.o 
+
+SRCS_GL_SERVO = \
+	SL_openGL_servo.c \
+	SL_openGL_servo_unix.c \
+	SL_openGL.c \
+	SL_openGL_oscilloscope.c \
+	SL_objects.c \
+	SL_userGraphics.c 
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_VISION_SERVO = \
+	SL_vision_servo.o \
+	SL_vision_servo_unix.o \
+	SL_dbvision.o \
+	SL_serial_unix.o \
+	SL_vision_proc.o 
+
+SRCS_VISION_SERVO = \
+	SL_vision_servo.c \
+	SL_vision_servo_unix.c \
+	SL_dbvision.c \
+	SL_serial_unix.c \
+	SL_vision_proc.c 
+
+/* ------------------------------------------------------------------------*/
+
+OBJS_ROS_SERVO = \
+	SL_ros_servo.o \
+	SL_ros_servo_unix.o \
+	SL_ros_communicator.o
+
+SRCS_ROS_SERVO = \
+	SL_ros_servo.cpp \
+	SL_ros_servo_unix.cpp \
+	SL_ros_communicator.cpp
+
+ROS_PACKAGES = roscpp sensor_msgs geometry_msgs
+
+/* ------------------------------------------------------------------------*/
+
+SOURCES = $(SRCS_SL_COMMON) $(SRCS_TASK_SERVO) $(SRCS_MOTOR_SERVO) $(SRCS_SIM_SERVO) $(SRCS_GL_SERVO) $(SRCS_VISION_SERVO)
+
+OBJECTS = $(OBJS_SL_COMMON) $(OBJS_TASK_SERVO) $(OBJS_MOTOR_SERVO) $(OBJS_SIM_SERVO) $(OBJS_GL_SERVO) $(OBJS_VISION_SERVO)
+
+ROS_SOURCES = $(SRCS_ROS_SERVO)
+ROS_OBJECTS = $(OBJS_ROS_SERVO)
+
+/* ------------------------------------------------------------------------*/
+
+LibraryListTarget(SLcommon,$(OBJS_SL_COMMON))
+LibraryListTarget(SLtask,$(OBJS_TASK_SERVO))
+LibraryListTarget(SLmotor,$(OBJS_MOTOR_SERVO))
+LibraryListTarget(SLsimulation,$(OBJS_SIM_SERVO))
+LibraryListTarget(SLopenGL,$(OBJS_GL_SERVO))
+LibraryListTarget(SLvision,$(OBJS_VISION_SERVO))
+
+ifdef ROS_ROOT
+  LibraryListTarget(SLros,$(OBJS_ROS_SERVO))
+endif
+
+NormalObjRule( $(OBJECTS) )
+
+ifdef ROS_ROOT
+  NormalObjRuleCppRos( $(ROS_OBJECTS),$(ROS_PACKAGES) )
+endif
